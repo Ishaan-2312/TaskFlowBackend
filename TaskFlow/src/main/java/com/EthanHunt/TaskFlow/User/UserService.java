@@ -55,7 +55,7 @@ public class UserService {
         String jwtToken = jwtService.generateToken(userDetails);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(newUser);
 
-        return AuthResponse.builder().token(jwtToken).username(user.getUserName()).email(user.getEmail()).user_id(user.getId()).refreshToken(refreshToken.getRefreshToken()).generated(true).build();
+        return AuthResponse.builder().token(jwtToken).username(newUser.getUserName()).email(newUser.getEmail()).user_id(newUser.getId()).refreshToken(refreshToken.getRefreshToken()).generated(true).build();
 
     }
 
