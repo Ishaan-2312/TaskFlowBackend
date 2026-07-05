@@ -27,5 +27,15 @@ public class TaskController {
         return ResponseEntity.ok(taskService.fetchTasks(projectId));
     }
 
+    @DeleteMapping("deleteTask")
+    public ResponseEntity<TaskUpdateResponse> deleteTask(@RequestParam Long projectId,@RequestParam Long taskId){
+        return ResponseEntity.ok(taskService.deleteTask(projectId,taskId));
+    }
+
+    @PutMapping("editTask")
+    public ResponseEntity<TaskUpdateResponse> editTask(@RequestBody TaskUpdateRequest taskUpdateRequest){
+        return ResponseEntity.ok(taskService.editTask(taskUpdateRequest));
+    }
+
 
 }

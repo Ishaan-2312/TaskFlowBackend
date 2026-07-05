@@ -6,6 +6,7 @@ import com.EthanHunt.TaskFlow.Task.Task;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -26,4 +27,6 @@ public class TaskUpdateResponse {
     private boolean success;
 
     private String message;
+    private LocalDate dueDate;
 }
+

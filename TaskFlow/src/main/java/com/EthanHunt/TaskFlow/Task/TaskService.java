@@ -7,6 +7,7 @@ import com.EthanHunt.TaskFlow.ResponseDTO.TaskFetchResponse;
 import com.EthanHunt.TaskFlow.ResponseDTO.TaskUpdateResponse;
 import com.EthanHunt.TaskFlow.User.User;
 import com.EthanHunt.TaskFlow.User.UserRepository;
+import com.google.rpc.context.AttributeContext;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -29,8 +30,7 @@ public class TaskService {
     @Transactional
     public TaskUpdateResponse addTask(TaskUpdateRequest request){
 
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();
 
@@ -56,6 +56,7 @@ public class TaskService {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .priority(request.getPriority())
+                .status(request.getStatus())
                 .dueDate(request.getDueDate())
                 .project(project)
                 .build();
@@ -75,8 +76,7 @@ public class TaskService {
     }
 
     public @Nullable List<TaskFetchResponse> fetchTasks(Long projectId) {
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();
 
@@ -114,5 +114,90 @@ public class TaskService {
        }
        return response;
 
+    }
+
+    public @Nullable TaskUpdateResponse deleteTask(Long projectId,Long taskId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email);
+
+        if(user == null){
+            return TaskUpdateResponse.builder()
+                    .success(false)
+                    .message("User not found")
+                    .build();
+        }
+
+        Project project = projectRepository.findByUserAndId(user, projectId);
+        if(project == null){
+            return TaskUpdateResponse.builder()
+                    .success(false)
+                    .message("Project not found")
+                    .build();
+        }
+        Optional<Task> toDeleteTask = taskRepository.findById(taskId);
+        if(toDeleteTask.isEmpty()){
+            return TaskUpdateResponse.builder()
+                    .success(false)
+                    .message("Task Does Not Exist")
+                    .build();
+
+        }
+        taskRepository.deleteById(taskId);
+
+        return TaskUpdateResponse.builder()
+                .taskId(toDeleteTask.get().getId())
+                .success(true)
+                .message("Task Deleted successfully")
+                .build();
+
+
+    }
+
+    public @Nullable TaskUpdateResponse editTask(TaskUpdateRequest taskUpdateRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email);
+
+        if(user == null){
+            return TaskUpdateResponse.builder()
+                    .success(false)
+                    .message("User not found")
+                    .build();
+        }
+
+
+        Optional<Task> existing = taskRepository.findById(taskUpdateRequest.getTaskId());
+
+        if(existing.isEmpty()){
+            return TaskUpdateResponse.builder()
+                    .success(false)
+                    .message("Task not found")
+                    .build();
+        }
+
+        Task task = existing.get();
+
+        task.setTitle(taskUpdateRequest.getTitle());
+        task.setDescription(taskUpdateRequest.getDescription());
+        task.setPriority(taskUpdateRequest.getPriority());
+        task.setStatus(taskUpdateRequest.getStatus());
+        task.setDueDate(taskUpdateRequest.getDueDate());
+
+        Task updatedTask = taskRepository.save(task);
+
+        return TaskUpdateResponse.builder()
+                .taskId(updatedTask.getId())
+                .status(updatedTask.getStatus())
+                .priority(updatedTask.getPriority())
+                .description(updatedTask.getDescription())
+                .title(updatedTask.getTitle())
+                .dueDate(updatedTask.getDueDate())
+                .success(true)
+                .build();
     }
 }
