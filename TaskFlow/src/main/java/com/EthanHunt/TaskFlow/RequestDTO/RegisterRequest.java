@@ -1,6 +1,7 @@
 package com.EthanHunt.TaskFlow.RequestDTO;
 
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 @Data
 public class RegisterRequest {

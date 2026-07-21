@@ -39,6 +39,9 @@ public class UserService {
         if(user!=null){
             return AuthResponse.builder().generated(false).message("User Already Existes").build();
         }
+        if(registerRequest.getEmail().isBlank() || registerRequest.getEmail()==null || registerRequest.getPassword().isBlank() || registerRequest.getPassword()==null){
+            return AuthResponse.builder().generated(false).message("Email And Password cannnot be null").build();
+        }
         User newUser = User.builder()
                 .userName(registerRequest.getUsername())
                 .email(registerRequest.getEmail())
